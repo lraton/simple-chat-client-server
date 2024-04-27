@@ -1,4 +1,18 @@
-import socket, threading
+import socket, threading, sys
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+def move_cursor_to_bottom():
+    sys.stdout.write("\033[999B")  # Move cursor 999 lines down
+    sys.stdout.flush()
 
 def handle_messages(connection: socket.socket):
     '''
@@ -38,13 +52,20 @@ def client() -> None:
         socket_instance.connect((SERVER_ADDRESS, SERVER_PORT))
         # Create a thread in order to handle messages sent by server
         threading.Thread(target=handle_messages, args=[socket_instance]).start()
-
+        msg = sys.argv[1]
+        socket_instance.send(msg.encode())
         print('Connected to chat!')
 
         # Read user's input until it quit from chat and close connection
         while True:
-            msg = input()
-
+            # Move cursor to the bottom
+            move_cursor_to_bottom()
+            msg = input('> ')
+            print ("\033[A                             \033[A")
+            print(bcolors.OKGREEN + sys.argv[1] +': '+ bcolors.ENDC + msg)
+            # Move cursor to the bottom again
+            move_cursor_to_bottom()
+            
             if msg == 'quit':
                 break
 
@@ -60,4 +81,7 @@ def client() -> None:
 
 
 if __name__ == "__main__":
-    client()
+    if len(sys.argv) > 1:
+        client()
+    else:
+        print('Enter your username as argument to connect to chat.')

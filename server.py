@@ -2,12 +2,14 @@ import socket, threading
 
 # Global variable that mantain client's connections
 connections = []
+name = []
 
 def handle_user_connection(connection: socket.socket, address: str) -> None:
     '''
         Get user connection in order to keep receiving their messages and
         sent to others users/connections.
     '''
+    first_message_printed = False
     while True:
         try:
             # Get client message
@@ -16,14 +18,18 @@ def handle_user_connection(connection: socket.socket, address: str) -> None:
             # If no message is received, there is a chance that connection has ended
             # so in this case, we need to close connection and remove it from connections list.
             if msg:
-                # Log message sent by user
-                print(f'{address[0]}:{address[1]} - {msg.decode()}')
-                
-                # Build message format and broadcast to users connected on server
-                msg_to_send = f'From {address[0]}:{address[1]} - {msg.decode()}'
-                broadcast(msg_to_send, connection)
-
-            # Close connection if no message was sent
+                if not first_message_printed:
+                    print(msg.decode())  # Print the first message
+                    name.append(msg.decode()) # Add the name to the list
+                    first_message_printed = True
+                else:
+                    # Log message sent by user
+                    print(f'{address[0]}:{address[1]} - {msg.decode()}')
+                    
+                    # Build message format and broadcast to users connected on server
+                    msg_to_send = f'From {address[0]}:{address[1]} - {msg.decode()}'
+                    broadcast(msg_to_send, connection)
+                # Close connection if no message was sent
             else:
                 remove_connection(connection)
                 break
