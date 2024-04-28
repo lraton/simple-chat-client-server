@@ -10,6 +10,7 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
 def move_cursor_to_bottom():
     sys.stdout.write("\033[999B")  # Move cursor 999 lines down
     sys.stdout.flush()
@@ -54,7 +55,11 @@ def client() -> None:
         threading.Thread(target=handle_messages, args=[socket_instance]).start()
         msg = sys.argv[1]
         socket_instance.send(msg.encode())
-        print('Connected to chat!')
+        print(bcolors.HEADER + "***************************")
+        print("*                         *")
+        print("*  Welcome to the chat!   *")
+        print("*                         *")
+        print("***************************" + bcolors.ENDC)
 
         # Read user's input until it quit from chat and close connection
         while True:
@@ -62,7 +67,7 @@ def client() -> None:
             move_cursor_to_bottom()
             msg = input('> ')
             print ("\033[A                             \033[A")
-            print(bcolors.OKGREEN + sys.argv[1] +': '+ bcolors.ENDC + msg)
+            print('> ' + bcolors.OKGREEN + 'You' +': '+ bcolors.ENDC + msg)
             # Move cursor to the bottom again
             move_cursor_to_bottom()
             

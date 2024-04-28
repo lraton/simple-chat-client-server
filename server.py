@@ -1,8 +1,20 @@
 import socket, threading
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 # Global variable that mantain client's connections
 connections = []
 name = []
+nameused = ""
 
 def handle_user_connection(connection: socket.socket, address: str) -> None:
     '''
@@ -17,17 +29,19 @@ def handle_user_connection(connection: socket.socket, address: str) -> None:
 
             # If no message is received, there is a chance that connection has ended
             # so in this case, we need to close connection and remove it from connections list.
+
             if msg:
                 if not first_message_printed:
                     print(msg.decode())  # Print the first message
                     name.append(msg.decode()) # Add the name to the list
+                    nameused = msg.decode()
                     first_message_printed = True
                 else:
                     # Log message sent by user
                     print(f'{address[0]}:{address[1]} - {msg.decode()}')
                     
                     # Build message format and broadcast to users connected on server
-                    msg_to_send = f'From {address[0]}:{address[1]} - {msg.decode()}'
+                    msg_to_send = f'{bcolors.OKBLUE + nameused}: {bcolors.ENDC + msg.decode()}'
                     broadcast(msg_to_send, connection)
                 # Close connection if no message was sent
             else:
